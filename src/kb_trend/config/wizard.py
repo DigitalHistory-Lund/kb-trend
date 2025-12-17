@@ -1,7 +1,6 @@
 """Interactive configuration wizard."""
 
 from pathlib import Path
-from typing import List, Optional
 
 import typer
 from rich.console import Console
@@ -44,8 +43,8 @@ def run_setup_wizard(non_interactive: bool = False) -> Settings:
         default=True
     )
 
-    min_year: Optional[int] = None
-    max_year: Optional[int] = None
+    min_year: int | None = None
+    max_year: int | None = None
 
     if use_year_filter:
         min_year = IntPrompt.ask("  Minimum year", default=1820)
@@ -63,7 +62,7 @@ def run_setup_wizard(non_interactive: bool = False) -> Settings:
     console.print('  Enter journal names (one per line, empty line to finish)')
     console.print('  Use "None" to search all journals\n')
 
-    journals: List[str] = []
+    journals: list[str] = []
     journal_count = 1
 
     while True:
@@ -109,7 +108,7 @@ def run_setup_wizard(non_interactive: bool = False) -> Settings:
         default=False
     )
 
-    marker_templates: List[str] = []
+    marker_templates: list[str] = []
     proximity_distance = 5
 
     if use_proximity:

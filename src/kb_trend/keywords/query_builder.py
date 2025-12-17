@@ -1,6 +1,5 @@
 """Query builder for search strings."""
 
-from typing import List
 
 
 class QueryBuilder:
@@ -8,7 +7,7 @@ class QueryBuilder:
 
     def __init__(
         self,
-        marker_templates: List[str] | None = None,
+        marker_templates: list[str] | None = None,
         proximity_distance: int = 5
     ):
         """Initialize query builder.

@@ -1,6 +1,6 @@
 """HTTP client for KB.se API."""
 
-from typing import Any, Dict, Optional, cast
+from typing import Any, cast
 
 import httpx
 
@@ -22,10 +22,10 @@ class KBClient:
     def search(
         self,
         query: str,
-        journal: Optional[str] = None,
-        from_date: Optional[str] = None,
-        to_date: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        journal: str | None = None,
+        from_date: str | None = None,
+        to_date: str | None = None,
+    ) -> dict[str, Any]:
         """Execute search query.
 
         Args:
@@ -41,7 +41,7 @@ class KBClient:
             httpx.HTTPError: If request fails
         """
         # Build parameters
-        params: Dict[str, str] = {
+        params: dict[str, str] = {
             "q": query if query != "*" else "*",
             "searchGranularity": "part",
             "limit": "1",
@@ -64,7 +64,7 @@ class KBClient:
         if "application/json" not in content_type:
             raise ValueError(f"Expected JSON response, got {content_type}")
 
-        return cast(Dict[str, Any], response.json())
+        return cast(dict[str, Any], response.json())
 
     def close(self) -> None:
         """Close HTTP client."""

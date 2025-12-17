@@ -2,7 +2,7 @@
 
 import csv
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class KeywordLoader:
@@ -16,7 +16,7 @@ class KeywordLoader:
         """
         self.keyword_column = keyword_column
 
-    def load(self, file_path: Path) -> List[Dict[str, Any]]:
+    def load(self, file_path: Path) -> list[dict[str, Any]]:
         """Load keywords from file.
 
         Args:
@@ -42,7 +42,7 @@ class KeywordLoader:
                 f"Supported formats: .txt, .csv, .tsv"
             )
 
-    def _load_txt(self, file_path: Path) -> List[Dict[str, str]]:
+    def _load_txt(self, file_path: Path) -> list[dict[str, str]]:
         """Load from plain text file (one keyword per line).
 
         Args:
@@ -61,7 +61,7 @@ class KeywordLoader:
 
         return keywords
 
-    def _load_csv(self, file_path: Path, delimiter: str) -> List[Dict[str, Any]]:
+    def _load_csv(self, file_path: Path, delimiter: str) -> list[dict[str, Any]]:
         """Load from CSV/TSV file.
 
         Args:

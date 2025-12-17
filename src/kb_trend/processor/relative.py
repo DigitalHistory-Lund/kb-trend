@@ -1,6 +1,5 @@
 """Relative frequency processor."""
 
-from typing import Dict, List, Tuple
 
 from kb_trend.database.manager import DatabaseManager
 
@@ -34,7 +33,7 @@ class RelativeFrequencyProcessor:
             )
 
         # Build dictionary of (journal_id, year) -> count for wildcard query
-        wildcard_counts: Dict[Tuple[int, int], int] = {}
+        wildcard_counts: dict[tuple[int, int], int] = {}
 
         with self.db_manager.get_session() as session:
             from kb_trend.database.schema import Count
@@ -49,7 +48,7 @@ class RelativeFrequencyProcessor:
                 wildcard_counts[key] = count_obj.count
 
         # Get all non-wildcard counts and calculate relative frequencies
-        updates: List[Dict] = []
+        updates: list[dict] = []
 
         with self.db_manager.get_session() as session:
             from kb_trend.database.schema import Count

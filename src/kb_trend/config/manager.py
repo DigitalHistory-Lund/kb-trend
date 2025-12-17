@@ -1,7 +1,7 @@
 """Configuration file manager."""
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import yaml
 
@@ -64,7 +64,7 @@ class ConfigManager:
         with open(self.config_path, 'w', encoding='utf-8') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
-    def to_dict(self, settings: Settings) -> Dict[str, Any]:
+    def to_dict(self, settings: Settings) -> dict[str, Any]:
         """Convert settings to dictionary for hashing.
 
         Args:

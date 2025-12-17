@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import Session, sessionmaker
@@ -20,7 +20,7 @@ class DatabaseManager:
             db_path: Path to SQLite database file
         """
         self.db_path = db_path
-        self.engine = create_engine(f'sqlite:///{db_path}', echo=False)
+        self.engine = create_engine(f"sqlite:///{db_path}", echo=False)
         self.SessionLocal = sessionmaker(bind=self.engine)
 
         # Auto-initialize schema if database doesn't exist or is empty
@@ -40,7 +40,7 @@ class DatabaseManager:
         return self.SessionLocal()
 
     # Metadata operations
-    def get_metadata(self, key: str) -> Optional[str]:
+    def get_metadata(self, key: str) -> str | None:
         """Get metadata value by key.
 
         Args:
@@ -77,7 +77,7 @@ class DatabaseManager:
             session.commit()
 
     # Journal operations
-    def initialize_journals(self, journal_names: List[str]) -> None:
+    def initialize_journals(self, journal_names: list[str]) -> None:
         """Initialize journals from settings.
 
         Args:
@@ -91,7 +91,7 @@ class DatabaseManager:
                     session.add(journal)
             session.commit()
 
-    def get_journal_id(self, name: str) -> Optional[int]:
+    def get_journal_id(self, name: str) -> int | None:
         """Get journal ID by name.
 
         Args:
@@ -108,7 +108,7 @@ class DatabaseManager:
                 return journal_id
             return None
 
-    def get_all_journals(self) -> List[Journal]:
+    def get_all_journals(self) -> list[Journal]:
         """Get all journals.
 
         Returns:
@@ -122,10 +122,7 @@ class DatabaseManager:
 
     # Query operations
     def insert_query(
-        self,
-        search_string: str,
-        keyword: str,
-        metadata: Optional[Dict[str, Any]] = None
+        self, search_string: str, keyword: str, metadata: dict[str, Any] | None = None
     ) -> int:
         """Insert or get existing query.
 
@@ -139,20 +136,17 @@ class DatabaseManager:
         """
         with self.get_session() as session:
             # Check if query already exists
-            existing = session.query(Query).filter(
-                Query.search_string == search_string,
-                Query.keyword == keyword
-            ).first()
+            existing = (
+                session.query(Query)
+                .filter(Query.search_string == search_string, Query.keyword == keyword)
+                .first()
+            )
 
             if existing:
                 return existing.id
 
             # Create new query
-            query = Query(
-                search_string=search_string,
-                keyword=keyword,
-                metadata_json=metadata
-            )
+            query = Query(search_string=search_string, keyword=keyword, metadata_json=metadata)
             session.add(query)
             session.commit()
             session.refresh(query)
@@ -165,13 +159,9 @@ class DatabaseManager:
         Returns:
             Wildcard query ID
         """
-        return self.insert_query(
-            search_string='*',
-            keyword='*',
-            metadata={'_wildcard': True}
-        )
+        return self.insert_query(search_string="*", keyword="*", metadata={"_wildcard": True})
 
-    def get_query_by_id(self, query_id: int) -> Optional[Query]:
+    def get_query_by_id(self, query_id: int) -> Query | None:
         """Get query by ID.
 
         Args:
@@ -183,23 +173,18 @@ class DatabaseManager:
         with self.get_session() as session:
             return session.query(Query).filter(Query.id == query_id).first()
 
-    def get_wildcard_query_id(self) -> Optional[int]:
+    def get_wildcard_query_id(self) -> int | None:
         """Get wildcard query ID.
 
         Returns:
             Wildcard query ID or None
         """
         with self.get_session() as session:
-            query = session.query(Query).filter(Query.keyword == '*').first()
+            query = session.query(Query).filter(Query.keyword == "*").first()
             return query.id if query else None
 
     # Queue operations
-    def populate_queue(
-        self,
-        query_id: int,
-        journals: List[str],
-        year: str = "all"
-    ) -> int:
+    def populate_queue(self, query_id: int, journals: list[str], year: str = "all") -> int:
         """Populate queue with query/journal combinations.
 
         Args:
@@ -219,18 +204,19 @@ class DatabaseManager:
                     continue
 
                 # Check if already exists
-                existing = session.query(QueueItem).filter(
-                    QueueItem.query_id == query_id,
-                    QueueItem.journal_id == journal_id,
-                    QueueItem.year == year
-                ).first()
+                existing = (
+                    session.query(QueueItem)
+                    .filter(
+                        QueueItem.query_id == query_id,
+                        QueueItem.journal_id == journal_id,
+                        QueueItem.year == year,
+                    )
+                    .first()
+                )
 
                 if not existing:
                     queue_item = QueueItem(
-                        query_id=query_id,
-                        journal_id=journal_id,
-                        year=year,
-                        status='pending'
+                        query_id=query_id, journal_id=journal_id, year=year, status="pending"
                     )
                     session.add(queue_item)
                     count += 1
@@ -240,10 +226,8 @@ class DatabaseManager:
         return count
 
     def get_queue(
-        self,
-        status: Optional[List[str]] = None,
-        limit: Optional[int] = None
-    ) -> List[QueueItem]:
+        self, status: list[str] | None = None, limit: int | None = None
+    ) -> list[QueueItem]:
         """Get queue items.
 
         Args:
@@ -265,10 +249,7 @@ class DatabaseManager:
             return query.all()
 
     def update_queue_status(
-        self,
-        item_id: int,
-        status: str,
-        error_message: Optional[str] = None
+        self, item_id: int, status: str, error_message: str | None = None
     ) -> None:
         """Update queue item status.
 
@@ -284,7 +265,7 @@ class DatabaseManager:
                 item.status = status
                 item.error_message = error_message
 
-                if status == 'completed':
+                if status == "completed":
                     item.completed_at = datetime.utcnow()
 
                 session.commit()
@@ -296,22 +277,14 @@ class DatabaseManager:
             Number of items reset
         """
         with self.get_session() as session:
-            result = session.query(QueueItem).update({
-                'status': 'pending',
-                'completed_at': None,
-                'error_message': None
-            })
+            result = session.query(QueueItem).update(
+                {"status": "pending", "completed_at": None, "error_message": None}
+            )
             session.commit()
             return result
 
     # Count operations
-    def insert_count(
-        self,
-        year: int,
-        query_id: int,
-        journal_id: int,
-        count: int
-    ) -> None:
+    def insert_count(self, year: int, query_id: int, journal_id: int, count: int) -> None:
         """Insert or update count.
 
         Args:
@@ -321,36 +294,33 @@ class DatabaseManager:
             count: Hit count
         """
         with self.get_session() as session:
-            existing = session.query(Count).filter(
-                Count.year == year,
-                Count.query_id == query_id,
-                Count.journal_id == journal_id
-            ).first()
+            existing = (
+                session.query(Count)
+                .filter(
+                    Count.year == year, Count.query_id == query_id, Count.journal_id == journal_id
+                )
+                .first()
+            )
 
             if existing:
                 existing.count = count
             else:
-                count_obj = Count(
-                    year=year,
-                    query_id=query_id,
-                    journal_id=journal_id,
-                    count=count
-                )
+                count_obj = Count(year=year, query_id=query_id, journal_id=journal_id, count=count)
                 session.add(count_obj)
 
             session.commit()
 
-    def insert_counts_batch(self, counts: List[Dict[str, Any]]) -> None:
+    def insert_counts_batch(self, counts: list[dict[str, Any]]) -> None:
         """Insert multiple counts in batch.
 
         Args:
             counts: List of dicts with year, query_id, journal_id, count
         """
-        with self.get_session() as session:
+        with self.get_session():
             for count_data in counts:
                 self.insert_count(**count_data)
 
-    def get_counts_for_query(self, query_id: int) -> List[Count]:
+    def get_counts_for_query(self, query_id: int) -> list[Count]:
         """Get all counts for a query.
 
         Args:
@@ -362,7 +332,7 @@ class DatabaseManager:
         with self.get_session() as session:
             return session.query(Count).filter(Count.query_id == query_id).all()
 
-    def update_relative_frequencies(self, updates: List[Dict[str, Any]]) -> int:
+    def update_relative_frequencies(self, updates: list[dict[str, Any]]) -> int:
         """Update relative frequencies for counts.
 
         Args:
@@ -375,9 +345,9 @@ class DatabaseManager:
 
         with self.get_session() as session:
             for update in updates:
-                count_obj = session.query(Count).filter(Count.id == update['id']).first()
+                count_obj = session.query(Count).filter(Count.id == update["id"]).first()
                 if count_obj:
-                    count_obj.rel = update['rel']
+                    count_obj.rel = update["rel"]
                     count += 1
 
             session.commit()
@@ -385,7 +355,7 @@ class DatabaseManager:
         return count
 
     # Statistics
-    def get_statistics(self) -> Dict[str, int]:
+    def get_statistics(self) -> dict[str, int]:
         """Get database statistics.
 
         Returns:
@@ -393,18 +363,18 @@ class DatabaseManager:
         """
         with self.get_session() as session:
             stats = {
-                'total_queries': session.query(func.count(Query.id)).scalar(),
-                'total_journals': session.query(func.count(Journal.id)).scalar(),
-                'total_counts': session.query(func.count(Count.id)).scalar(),
-                'queue_pending': session.query(func.count(QueueItem.id)).filter(
-                    QueueItem.status == 'pending'
-                ).scalar(),
-                'queue_completed': session.query(func.count(QueueItem.id)).filter(
-                    QueueItem.status == 'completed'
-                ).scalar(),
-                'queue_failed': session.query(func.count(QueueItem.id)).filter(
-                    QueueItem.status == 'failed'
-                ).scalar(),
+                "total_queries": session.query(func.count(Query.id)).scalar(),
+                "total_journals": session.query(func.count(Journal.id)).scalar(),
+                "total_counts": session.query(func.count(Count.id)).scalar(),
+                "queue_pending": session.query(func.count(QueueItem.id))
+                .filter(QueueItem.status == "pending")
+                .scalar(),
+                "queue_completed": session.query(func.count(QueueItem.id))
+                .filter(QueueItem.status == "completed")
+                .scalar(),
+                "queue_failed": session.query(func.count(QueueItem.id))
+                .filter(QueueItem.status == "failed")
+                .scalar(),
             }
 
             return stats

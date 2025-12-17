@@ -1,7 +1,7 @@
 """Scraper worker for processing queue."""
 
 import time
-from typing import Any, Optional
+from typing import Any
 
 from loguru import logger
 
@@ -52,8 +52,8 @@ class ScraperWorker:
                 journal_name = journal.name
 
             # Build date range
-            from_date: Optional[str] = None
-            to_date: Optional[str] = None
+            from_date: str | None = None
+            to_date: str | None = None
 
             if self.settings.min_year:
                 from_date = f"{self.settings.min_year}-01-01"

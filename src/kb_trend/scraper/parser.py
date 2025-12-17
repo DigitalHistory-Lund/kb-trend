@@ -1,13 +1,13 @@
 """Parser for KB.se API responses."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 
 class ResponseParser:
     """Parse KB.se API responses."""
 
     @staticmethod
-    def extract_year_counts(response: Dict[str, Any]) -> List[Dict[str, int]]:
+    def extract_year_counts(response: dict[str, Any]) -> list[dict[str, int]]:
         """Extract year/count pairs from API response.
 
         Args:
@@ -48,7 +48,7 @@ class ResponseParser:
             raise ValueError(f"Failed to parse response: {e}")
 
     @staticmethod
-    def get_total_hits(response: Dict[str, Any]) -> int:
+    def get_total_hits(response: dict[str, Any]) -> int:
         """Get total number of hits from response.
 
         Args:

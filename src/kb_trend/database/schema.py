@@ -1,7 +1,7 @@
 """SQLAlchemy database schema."""
 
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import (
     DateTime,
@@ -44,10 +44,10 @@ class Journal(Base):
     name: Mapped[str] = mapped_column(String, unique=True, nullable=False, index=True)
 
     # Relationships
-    counts: Mapped[List["Count"]] = relationship(
+    counts: Mapped[list["Count"]] = relationship(
         "Count", back_populates="journal", cascade="all, delete-orphan"
     )
-    queue_items: Mapped[List["QueueItem"]] = relationship(
+    queue_items: Mapped[list["QueueItem"]] = relationship(
         "QueueItem", back_populates="journal", cascade="all, delete-orphan"
     )
 
@@ -63,7 +63,7 @@ class Query(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     search_string: Mapped[str] = mapped_column(String, nullable=False, index=True)
     keyword: Mapped[str] = mapped_column(String, nullable=False, index=True)
-    metadata_json: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True)
+    metadata_json: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
 
     # Unique constraint on search_string + keyword
     __table_args__ = (
@@ -72,10 +72,10 @@ class Query(Base):
     )
 
     # Relationships
-    counts: Mapped[List["Count"]] = relationship(
+    counts: Mapped[list["Count"]] = relationship(
         "Count", back_populates="query", cascade="all, delete-orphan"
     )
-    queue_items: Mapped[List["QueueItem"]] = relationship(
+    queue_items: Mapped[list["QueueItem"]] = relationship(
         "QueueItem", back_populates="query", cascade="all, delete-orphan"
     )
 
@@ -93,7 +93,7 @@ class Count(Base):
     query_id: Mapped[int] = mapped_column(Integer, ForeignKey("query.id"), nullable=False)
     journal_id: Mapped[int] = mapped_column(Integer, ForeignKey("journal.id"), nullable=False)
     count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    rel: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    rel: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("year", "query_id", "journal_id", name="uq_count_year_query_journal"),
@@ -123,8 +123,8 @@ class QueueItem(Base):
     journal_id: Mapped[int] = mapped_column(Integer, ForeignKey("journal.id"), nullable=False)
     year: Mapped[str] = mapped_column(String, nullable=False)  # Can be "all" or specific year
     status: Mapped[str] = mapped_column(String, default="pending", index=True)
-    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    error_message: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(String, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("query_id", "journal_id", "year", name="uq_queue_query_journal_year"),

@@ -1,13 +1,13 @@
 """Tests for response parser."""
 
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
 from kb_trend.scraper.parser import ResponseParser
 
 
-def test_extract_year_counts(mock_api_response: Dict[str, Any]) -> None:
+def test_extract_year_counts(mock_api_response: dict[str, Any]) -> None:
     """Test extracting year counts from real API response."""
     parser = ResponseParser()
     results = parser.extract_year_counts(mock_api_response)

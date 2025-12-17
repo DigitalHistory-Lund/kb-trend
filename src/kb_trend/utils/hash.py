@@ -1,12 +1,12 @@
 """Configuration hash utilities."""
 
 import hashlib
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import yaml
 
 
-def calculate_config_hash(settings_dict: Dict[str, Any]) -> str:
+def calculate_config_hash(settings_dict: dict[str, Any]) -> str:
     """Calculate SHA256 hash of settings dictionary.
 
     Args:
@@ -22,8 +22,8 @@ def calculate_config_hash(settings_dict: Dict[str, Any]) -> str:
 
 def validate_config_hash(
     stored_hash: str | None,
-    current_settings_dict: Dict[str, Any]
-) -> Tuple[bool, str]:
+    current_settings_dict: dict[str, Any]
+) -> tuple[bool, str]:
     """Validate config hash matches stored hash.
 
     Args:

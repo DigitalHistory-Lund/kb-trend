@@ -1,7 +1,6 @@
 """Pydantic models for configuration."""
 
 from pathlib import Path
-from typing import List, Optional
 
 from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
@@ -13,15 +12,15 @@ class Settings(BaseModel):
     db_path: Path = Field(default=Path("kb_trend.sqlite3"), description="Database file path")
 
     # Time range
-    min_year: Optional[int] = Field(
+    min_year: int | None = Field(
         default=None, ge=1000, le=3000, description="Minimum year for search range"
     )
-    max_year: Optional[int] = Field(
+    max_year: int | None = Field(
         default=None, ge=1000, le=3000, description="Maximum year for search range"
     )
 
     # Journals
-    journals: List[str] = Field(
+    journals: list[str] = Field(
         default_factory=lambda: ["None"],
         description="Journal names to query ('None' means all journals)",
     )
@@ -34,7 +33,7 @@ class Settings(BaseModel):
     keyword_column: str = Field(default="title", description="CSV column name to use as keyword")
 
     # Query templates
-    marker_templates: List[str] = Field(
+    marker_templates: list[str] = Field(
         default_factory=list,
         description="Proximity search markers (e.g., ['SÖKES', 'PLATS', 'ERHÅLLES'])",
     )
@@ -44,7 +43,7 @@ class Settings(BaseModel):
 
     @field_validator("max_year")
     @classmethod
-    def validate_year_range(cls, v: Optional[int], info: ValidationInfo) -> Optional[int]:
+    def validate_year_range(cls, v: int | None, info: ValidationInfo) -> int | None:
         """Validate that max_year >= min_year if both are set."""
         min_year = info.data.get("min_year")
         if min_year is not None and v is not None:
@@ -62,7 +61,7 @@ class Settings(BaseModel):
 
     @field_validator("journals")
     @classmethod
-    def ensure_non_empty_journals(cls, v: List[str]) -> List[str]:
+    def ensure_non_empty_journals(cls, v: list[str]) -> list[str]:
         """Ensure journals list is not empty."""
         if not v:
             return ["None"]

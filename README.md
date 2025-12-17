@@ -10,7 +10,6 @@ National Library (Kungliga biblioteket).
 - **Proximity search** support with customizable markers
 - **Configuration validation** via SHA256 hashing to prevent data corruption
 - **SQLite database** with SQLAlchemy ORM for reliable data storage
-- **Comprehensive testing** with 100% code coverage
 - **Type-safe** with full type hints and mypy validation
 
 ## Installation

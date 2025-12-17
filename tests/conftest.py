@@ -3,7 +3,7 @@
 import json
 import tempfile
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -50,7 +50,7 @@ def db_manager(test_settings: Settings) -> DatabaseManager:
 
 
 @pytest.fixture
-def mock_api_response() -> Dict[str, Any]:
+def mock_api_response() -> dict[str, Any]:
     """Load mock API response from fixture."""
     fixture_path = Path(__file__).parent / "fixtures" / "response.example.json"
 
