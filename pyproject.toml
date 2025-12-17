@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kb-trend"
-version = "1.0.0"
+version = "1.0.1"
 description = "Swedish National Library newspaper trend scraper"
 authors = [
-    {name = "Martin Johnsson", email = "martin@example.com"}
+    {name = "Mathias Johansson", email = "MathiasJoha@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
+license = {text = "CC BY NC"}
 keywords = ["kb", "newspaper", "scraper", "trends", "swedish"]
 classifiers = [
     "Development Status :: 4 - Beta",
