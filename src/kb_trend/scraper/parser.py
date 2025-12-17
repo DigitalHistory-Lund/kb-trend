@@ -57,4 +57,7 @@ class ResponseParser:
         Returns:
             Total hit count
         """
-        return response.get("total", 0)
+        result = response.get("total", 0)
+        if type(result) is not int:
+            raise ValueError(f"Expected int {result}")
+        return int(result)

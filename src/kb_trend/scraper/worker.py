@@ -1,7 +1,7 @@
 """Scraper worker for processing queue."""
 
 import time
-from typing import Optional
+from typing import Any, Optional
 
 from loguru import logger
 
@@ -34,7 +34,7 @@ class ScraperWorker:
             item: Queue item to process
         """
         # Mark as in progress
-        self.db_manager.update_queue_status(item.id, 'in_progress')
+        self.db_manager.update_queue_status(item.id, "in_progress")
 
         try:
             # Get query and journal info
@@ -79,14 +79,14 @@ class ScraperWorker:
             # Insert counts into database
             for item_data in year_counts:
                 self.db_manager.insert_count(
-                    year=item_data['year'],
+                    year=item_data["year"],
                     query_id=item.query_id,
                     journal_id=item.journal_id,
-                    count=item_data['count']
+                    count=item_data["count"],
                 )
 
             # Mark as completed
-            self.db_manager.update_queue_status(item.id, 'completed')
+            self.db_manager.update_queue_status(item.id, "completed")
 
             # Sleep between requests
             time.sleep(self.settings.sleep_timer)
@@ -95,11 +95,7 @@ class ScraperWorker:
             # Mark as failed
             error_msg = str(e)
             logger.error(f"Error processing queue item {item.id}: {error_msg}")
-            self.db_manager.update_queue_status(
-                item.id,
-                'failed',
-                error_message=error_msg
-            )
+            self.db_manager.update_queue_status(item.id, "failed", error_message=error_msg)
             raise
 
     def close(self) -> None:
@@ -110,6 +106,6 @@ class ScraperWorker:
         """Context manager entry."""
         return self
 
-    def __exit__(self, *args) -> None:
+    def __exit__(self, *args: Any) -> None:
         """Context manager exit."""
         self.close()

@@ -1,6 +1,6 @@
 """HTTP client for KB.se API."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import httpx
 
@@ -17,10 +17,7 @@ class KBClient:
             timeout: Request timeout in seconds
         """
         self.timeout = timeout
-        self.client = httpx.Client(
-            timeout=timeout,
-            headers={"Accept": "application/json"}
-        )
+        self.client = httpx.Client(timeout=timeout, headers={"Accept": "application/json"})
 
     def search(
         self,
@@ -67,7 +64,7 @@ class KBClient:
         if "application/json" not in content_type:
             raise ValueError(f"Expected JSON response, got {content_type}")
 
-        return response.json()
+        return cast(Dict[str, Any], response.json())
 
     def close(self) -> None:
         """Close HTTP client."""
