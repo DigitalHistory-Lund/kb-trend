@@ -266,11 +266,11 @@ If you use KB-Trend in your research, please cite it as:
   author = {Johansson, Mathias},
   title = {{KB-Trend: Swedish National Library newspaper trend scraper}},
   year = {2025},
-  version = {1.0.0},
+  version = {1.0.1},
   url = {https://github.com/DigitalHistory-Lund/kb-trend},
   license = {CC-BY-NC-4.0}
 }
 
 Or in APA format:
 
-Johansson, M. (2025). KB-Trend: Swedish National Library newspaper trend scraper (Version 1.0.0) [Computer software]. https://github.com/DigitalHistory-Lund/kb-trend
+Johansson, M. (2025). KB-Trend: Swedish National Library newspaper trend scraper (Version 1.0.1) [Computer software]. https://github.com/DigitalHistory-Lund/kb-trend
