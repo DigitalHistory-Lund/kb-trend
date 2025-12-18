@@ -266,7 +266,7 @@ If you use KB-Trend in your research, please cite it as:
   author = {Johansson, Mathias},
   title = {{KB-Trend: Swedish National Library newspaper trend scraper}},
   year = {2025},
-  version = {1.0.0},
+  version = {1.0.1},
   url = {https://github.com/DigitalHistory-Lund/kb-trend},
   license = {CC-BY-NC-4.0}
 }
