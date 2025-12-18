@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB-Trend Search</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #7f8c8d;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-selector button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .mode-selector button.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .mode-selector button:hover {
+            background: #e8f4f8;
+        }
+
+        .mode-selector button.active:hover {
+            background: #2980b9;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-mode,
+        .direct-mode {
+            display: none;
+        }
+
+        .form-mode.active,
+        .direct-mode.active {
+            display: block;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .date-range>div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button[type="submit"]:hover {
+            background: #229954;
+        }
+
+        button[type="submit"]:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        #status {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: none;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        #status.show {
+            display: block;
+        }
+
+        #status.loading {
+            border-left: 4px solid #3498db;
+            background: #ebf5fb;
+        }
+
+        #status.success {
+            border-left: 4px solid #27ae60;
+            background: #eafaf1;
+        }
+
+        #status.error {
+            border-left: 4px solid #e74c3c;
+            background: #fadbd8;
+        }
+
+        .hint {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>KB-Trend Search</h1>
+            <p>Query Swedish National Library newspaper archives and download trend results as CSV</p>
+        </header>
+
+        <div class="mode-selector">
+            <button id="formModeBtn" class="active">Form Input</button>
+            <button id="directModeBtn">Direct API URL</button>
+        </div>
+
+        <div class="form-container">
+            <!-- Form Mode -->
+            <div class="form-mode active" id="formMode">
+                <form id="searchForm">
+                    <label for="keyword">Keyword *</label>
+                    <input type="text" id="keyword" name="keyword" required placeholder="e.g. gosse">
+
+                    <label for="journal">Journal (optional)</label>
+                    <input type="text" id="journal" name="journal"
+                        placeholder="e.g. DAGENS NYHETER (leave blank for all)">
+
+                    <label>Date Range (optional)</label>
+                    <div class="date-range">
+                        <div>
+                            <input type="number" id="from" name="from" placeholder="From year (e.g. 1900)" min="1000"
+                                max="2100">
+                        </div>
+                        <div>
+                            <input type="number" id="to" name="to" placeholder="To year (e.g. 2000)" min="1000"
+                                max="2100">
+                        </div>
+                    </div>
+
+                    <label for="markers">Proximity Markers (optional)</label>
+                    <input type="text" id="markers" name="markers" placeholder="e.g. SÖKES,PLATS,ERHÅLLES">
+                    <p class="hint">Comma-separated markers for proximity search</p>
+
+                    <label for="distance">Proximity Distance (optional)</label>
+                    <input type="number" id="distance" name="distance" placeholder="5" min="1" max="50">
+                    <p class="hint">Number of words between keyword and marker</p>
+
+                    <button type="submit">Search & Download CSV</button>
+                </form>
+            </div>
+
+            <!-- Direct URL Mode -->
+            <div class="direct-mode" id="directMode">
+                <form id="directForm">
+                    <label for="apiurl">KB.se API URL *</label>
+                    <input type="url" id="apiurl" name="apiurl" required
+                        placeholder="https://data.kb.se/search/?q=ja&searchGranularity=part">
+                    <p class="hint">Paste a complete KB.se search API URL</p>
+
+                    <button type="submit">Fetch & Download CSV</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="status"></div>
+
+        <footer>
+            <p><strong>CSV Format Note:</strong> Downloaded files are UTF-8 encoded and include metadata lines (starting
+                with #) above the header.<br>
+                The data format is: year,count</p>
+            <p>Part of <a href="https://github.com/DigitalHistory-Lund/kb-trend" target="_blank">KB-Trend</a> |
+                Data from <a href="https://data.kb.se" target="_blank">Kungliga biblioteket</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // State
+        let currentMode = 'form';
+
+        // DOM elements
+        const formModeBtn = document.getElementById('formModeBtn');
+        const directModeBtn = document.getElementById('directModeBtn');
+        const formModeDiv = document.getElementById('formMode');
+        const directModeDiv = document.getElementById('directMode');
+        const searchForm = document.getElementById('searchForm');
+        const directForm = document.getElementById('directForm');
+        const statusDiv = document.getElementById('status');
+
+        // Mode switching
+        formModeBtn.addEventListener('click', () => switchMode('form'));
+        directModeBtn.addEventListener('click', () => switchMode('direct'));
+
+        function switchMode(mode) {
+            currentMode = mode;
+
+            if (mode === 'form') {
+                formModeBtn.classList.add('active');
+                directModeBtn.classList.remove('active');
+                formModeDiv.classList.add('active');
+                directModeDiv.classList.remove('active');
+            } else {
+                directModeBtn.classList.add('active');
+                formModeBtn.classList.remove('active');
+                directModeDiv.classList.add('active');
+                formModeDiv.classList.remove('active');
+            }
+
+            updateURL();
+        }
+
+        // URL State Management
+        function loadStateFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const mode = params.get('mode') || 'form';
+
+            switchMode(mode);
+
+            if (mode === 'form') {
+                // Populate form fields
+                const keyword = params.get('keyword');
+                const journal = params.get('journal');
+                const from = params.get('from');
+                const to = params.get('to');
+                const markers = params.get('markers');
+                const distance = params.get('distance');
+
+                if (keyword) document.getElementById('keyword').value = keyword;
+                if (journal) document.getElementById('journal').value = journal;
+                if (from) document.getElementById('from').value = from;
+                if (to) document.getElementById('to').value = to;
+                if (markers) document.getElementById('markers').value = markers;
+                if (distance) document.getElementById('distance').value = distance;
+
+                // Auto-run if specified
+                if (params.get('autorun') === 'true' && keyword) {
+                    setTimeout(() => searchForm.requestSubmit(), 100);
+                }
+            } else if (mode === 'direct') {
+                const apiurl = params.get('apiurl');
+                if (apiurl) document.getElementById('apiurl').value = apiurl;
+
+                // Auto-run if specified
+                if (params.get('autorun') === 'true' && apiurl) {
+                    setTimeout(() => directForm.requestSubmit(), 100);
+                }
+            }
+        }
+
+        function updateURL() {
+            const url = new URL(window.location);
+            url.search = ''; // Clear existing params
+
+            url.searchParams.set('mode', currentMode);
+
+            if (currentMode === 'form') {
+                const keyword = document.getElementById('keyword').value;
+                const journal = document.getElementById('journal').value;
+                const from = document.getElementById('from').value;
+                const to = document.getElementById('to').value;
+                const markers = document.getElementById('markers').value;
+                const distance = document.getElementById('distance').value;
+
+                if (keyword) url.searchParams.set('keyword', keyword);
+                if (journal) url.searchParams.set('journal', journal);
+                if (from) url.searchParams.set('from', from);
+                if (to) url.searchParams.set('to', to);
+                if (markers) url.searchParams.set('markers', markers);
+                if (distance) url.searchParams.set('distance', distance);
+            } else if (currentMode === 'direct') {
+                const apiurl = document.getElementById('apiurl').value;
+                if (apiurl) url.searchParams.set('apiurl', apiurl);
+            }
+
+            window.history.replaceState({}, '', url);
+        }
+
+        // Query Builder
+        function buildQueryString(keyword, markers, distance) {
+            if (!markers || markers.trim() === '') {
+                // Plain keyword search (quoted for exact phrase)
+                return `"${keyword}"`;
+            }
+
+            // Proximity search with markers
+            const markerList = markers.split(',').map(m => m.trim()).filter(m => m);
+            const dist = distance || 5;
+            const parts = markerList.map(marker => `"${keyword} ${marker}"~${dist}`);
+
+            return parts.join(' OR ');
+        }
+
+        function buildAPIUrl(query, journal, fromYear, toYear) {
+            const params = new URLSearchParams({
+                q: query,
+                searchGranularity: 'part',
+                limit: '1'
+            });
+
+            if (fromYear) {
+                params.set('from', `${fromYear}-01-01`);
+            }
+            if (toYear) {
+                params.set('to', `${toYear}-12-31`);
+            }
+            if (journal && journal.trim() !== '') {
+                params.set('isPartOf', journal.trim());
+            }
+
+            return `https://data.kb.se/search/?${params.toString()}`;
+        }
+
+        // API Fetcher
+        async function fetchKBData(apiUrl) {
+            const response = await fetch(apiUrl, {
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status} ${response.statusText}`);
+            }
+
+            return await response.json();
+        }
+
+        // CSV Generator
+        function generateCSV(data, searchUrl, spaUrl) {
+            const datetime = new Date().toISOString();
+
+            // Add autorun=true to make it a bookmarkable link
+            const bookmarkableUrl = new URL(spaUrl);
+            bookmarkableUrl.searchParams.set('autorun', 'true');
+
+            let csv = `# KB-Trend Search Results\n`;
+            csv += `# Encoding: UTF-8\n`;
+            csv += `# Search URL: ${searchUrl}\n`;
+            csv += `# SPA URL: ${spaUrl}\n`;
+            csv += `# Bookmarkable URL (click to regenerate): ${bookmarkableUrl.toString()}\n`;
+            csv += `# Search datetime: ${datetime}\n`;
+            csv += `#\n`;
+            csv += `# File generated with kb-trend. If you use this data, please also cite the tool: https://github.com/DigitalHistory-Lund/kb-trend .\n`;
+            csv += `#\n`;
+            csv += `year,count\n`;
+
+            // Extract year/count from aggs.datePublished.values
+            const values = data.aggs?.datePublished?.values || [];
+
+            for (const item of values) {
+                // Handle both "YYYY" and "YYYY-MM-DD" formats
+                const year = item.value.includes('-') ? item.value.split('-')[0] : item.value;
+                const count = item.count;
+                csv += `${year},${count}\n`;
+            }
+
+            return csv;
+        }
+
+        // File Download
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Status Display
+        function showStatus(message, type = 'loading') {
+            statusDiv.textContent = message;
+            statusDiv.className = `show ${type}`;
+        }
+
+        function hideStatus() {
+            statusDiv.className = '';
+        }
+
+        // Form Submission Handlers
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const keyword = document.getElementById('keyword').value;
+            const journal = document.getElementById('journal').value;
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+            const markers = document.getElementById('markers').value;
+            const distance = document.getElementById('distance').value;
+
+            // Update URL
+            updateURL();
+
+            // Build query and API URL
+            const query = buildQueryString(keyword, markers, distance);
+            const apiUrl = buildAPIUrl(query, journal, from, to);
+
+            await executeSearch(apiUrl);
+        });
+
+        directForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const apiUrl = document.getElementById('apiurl').value;
+
+            // Update URL
+            updateURL();
+
+            await executeSearch(apiUrl);
+        });
+
+        // Main Search Execution
+        async function executeSearch(apiUrl) {
+            try {
+                showStatus('Fetching data from KB.se API...', 'loading');
+
+                // Fetch data
+                const data = await fetchKBData(apiUrl);
+
+                // Generate CSV with metadata
+                const spaUrl = window.location.href;
+                const csv = generateCSV(data, apiUrl, spaUrl);
+
+                // Generate ISO datetime filename
+                const now = new Date();
+                const filename = now.toISOString().replace(/[:.]/g, '').slice(0, -5) + 'Z.csv';
+
+                // Download CSV
+                downloadCSV(csv, filename);
+
+                // Create bookmarkable URL with autorun=true
+                const bookmarkableUrl = new URL(window.location.href);
+                bookmarkableUrl.searchParams.set('autorun', 'true');
+
+                const yearCount = data.aggs?.datePublished?.values?.length || 0;
+                showStatus(
+                    `✓ Success! Downloaded ${yearCount} years of data to ${filename}\n\n` +
+                    `Bookmarkable URL:\n${bookmarkableUrl.toString()}`,
+                    'success'
+                );
+
+                // Hide status after 10 seconds (gives time to copy URL)
+                setTimeout(() => hideStatus(), 10000);
+
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+                console.error('Search error:', error);
+            }
+        }
+
+        // Initialize on page load
+        loadStateFromURL();
+    </script>
+</body>
+
+</html>
