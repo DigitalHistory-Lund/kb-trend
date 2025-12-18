@@ -48,8 +48,8 @@ dev = [
 kb-trend = "kb_trend.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/matjoha/kb-trend"
-Repository = "https://github.com/matjoha/kb-trend"
+Homepage = "https://github.com/DigitalHistory-Lund/kb-trend"
+Repository = "https://github.com/DigitalHistory-Lund/kb-trend"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kb_trend"]
