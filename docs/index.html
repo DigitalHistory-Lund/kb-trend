@@ -439,6 +439,8 @@
             csv += `# Bookmarkable URL (click to regenerate): ${bookmarkableUrl.toString()}\n`;
             csv += `# Search datetime: ${datetime}\n`;
             csv += `#\n`;
+            csv += `# File generated with kb-trend. If you use this data, please also cite the tool: https://github.com/DigitalHistory-Lund/kb-trend .\n`;
+            csv += `#\n`;
             csv += `year,count\n`;
 
             // Extract year/count from aggs.datePublished.values
