@@ -273,4 +273,4 @@ If you use KB-Trend in your research, please cite it as:
 
 Or in APA format:
 
-Johansson, M. (2025). KB-Trend: Swedish National Library newspaper trend scraper (Version 1.0.0) [Computer software]. https://github.com/DigitalHistory-Lund/kb-trend
+Johansson, M. (2025). KB-Trend: Swedish National Library newspaper trend scraper (Version 1.0.1) [Computer software]. https://github.com/DigitalHistory-Lund/kb-trend
