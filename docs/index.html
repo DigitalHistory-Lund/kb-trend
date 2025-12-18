@@ -379,8 +379,8 @@
         // Query Builder
         function buildQueryString(keyword, markers, distance) {
             if (!markers || markers.trim() === '') {
-                // Plain keyword search (quoted for exact phrase)
-                return `"${keyword}"`;
+                // Plain keyword search (user can add quotes if needed)
+                return keyword;
             }
 
             // Proximity search with markers
